@@ -1,0 +1,41 @@
+var EMAIL_SENT = 'EMAIL_SENT';
+
+function onEdit(e) {
+  
+  var range = e.range;//jgfuf
+  var sheet = SpreadsheetApp.getActiveSheet();
+  var columnOfCellEdited = range.getColumn();//Get column number
+
+if (columnOfCellEdited === 2) {  
+      range.setNote('Laatst modified: ' + new Date());
+  }//565656
+}
+
+
+function SendNotification(e) {
+  
+  var sheet = SpreadsheetApp.getActiveSheet();
+  var startRow = 5; // First row of data to process
+  var numRows = 500; // Number of rows to process
+  var data_email = sheet.getRange(startRow, 27, numRows, 3);
+  var data_column27to29 = data_email.getValues(); 
+ 
+  for (var i = 0; i < numRows; ++i) {
+  
+    var data_approved = sheet.getRange(startRow+i, 2).getValue();
+    
+    var row_column27and28 = data_column27to29[i];
+    var emailaddress = row_column27and28[0];
+    var message = row_column27and28[1];
+    var emailSent = row_column27and28[2];
+        
+    if(data_approved == 'Approved' && emailSent != EMAIL_SENT) {
+      
+        var subject = 'System Email: Price approved in New quote file';
+          
+        MailApp.sendEmail(emailaddress, subject, message);
+        sheet.getRange(startRow + i, 29).setValue(EMAIL_SENT);
+        SpreadsheetApp.flush();
+    }        
+  }
+}
